@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "spinmodels"
+version = "0.1.0"
+description = "Numba-accelerated Monte Carlo simulations of classical lattice spin models (Ising, XY, Heisenberg, Potts)."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Esteban Cárdenas" }]
+dependencies = [
+    "numpy>=1.24",
+    "numba>=0.59",
+    "matplotlib>=3.7",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+spinmodels = "spinmodels.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/spinmodels"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["slow: longer statistical tests"]
