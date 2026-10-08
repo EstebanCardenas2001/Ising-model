@@ -187,15 +187,20 @@ class LatticeModel(ABC):
         Discrete models need no tuning.
         """
 
+    def reseed(self, seed: int) -> None:
+        """Reset the NumPy generator and Numba's stream (e.g. in a worker process)."""
+        self.rng = np.random.default_rng(seed)
+        seed_numba(int(self.rng.integers(2**32 - 1)))
+
     def renormalize(self) -> None:
         """Hook to remove floating-point drift from spin constraints (no-op here)."""
 
     def _check_cluster_valid(self) -> None:
-        """Wolff updates as implemented require a ferromagnet in zero field."""
+        """Cluster updates as implemented require a ferromagnet in zero field."""
         if self.h != 0.0:
-            raise ValueError("Wolff updates require h = 0 (use Metropolis with a field).")
+            raise ValueError("Cluster updates require h = 0 (use Metropolis with a field).")
         if self.J <= 0.0:
-            raise ValueError("Wolff updates require a ferromagnetic coupling J > 0.")
+            raise ValueError("Cluster updates require a ferromagnetic coupling J > 0.")
 
     def set_state(self, spins: np.ndarray) -> None:
         """Replace the configuration (shape and dtype are validated)."""

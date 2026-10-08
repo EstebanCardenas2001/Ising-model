@@ -12,6 +12,7 @@ from __future__ import annotations
 import numpy as np
 from numba import njit
 
+from ._cluster import flatten, union
 from .base import LatticeModel
 
 
@@ -75,6 +76,26 @@ def _wolff_kernel(spins, nbrs, q, p_add, stack, n_clusters):
 
 
 @njit(cache=True)
+def _sw_kernel(spins, nbrs, q, p_add, parent):
+    N, z = nbrs.shape
+    for i in range(N):
+        parent[i] = i
+    for i in range(N):
+        for k in range(0, z, 2):
+            j = nbrs[i, k]
+            if spins[i] == spins[j] and np.random.random() < p_add:
+                union(parent, i, j)
+    largest = flatten(parent)
+    new_state = np.empty(N, dtype=spins.dtype)
+    for i in range(N):
+        if parent[i] == i:
+            new_state[i] = np.random.randint(q)  # uniform over all q states
+    for i in range(N):
+        spins[i] = new_state[parent[i]]
+    return largest
+
+
+@njit(cache=True)
 def _energy_kernel(spins, nbrs, J, h):
     N, z = nbrs.shape
     E = 0.0
@@ -130,6 +151,11 @@ class PottsModel(LatticeModel):
         return _wolff_kernel(
             self.spins, self.neighbors, self.q, p_add, self._cluster, self.wolff_clusters
         )
+
+    def _swendsen_wang_sweep(self, beta):
+        self._check_cluster_valid()
+        p_add = 1.0 - np.exp(-beta * self.J)
+        return _sw_kernel(self.spins, self.neighbors, self.q, p_add, self._cluster)
 
     @classmethod
     def critical_temperature(cls, dim, q=3, J=1.0, **_):

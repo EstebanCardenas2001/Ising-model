@@ -22,6 +22,7 @@ from __future__ import annotations
 import numpy as np
 from numba import njit
 
+from ._cluster import flatten, union
 from .base import LatticeModel
 
 
@@ -120,6 +121,37 @@ def _wolff_kernel(spins, nbrs, two_beta_J, queue, in_cluster, n_clusters):
 
 
 @njit(cache=True)
+def _sw_kernel(spins, nbrs, two_beta_J, parent):
+    """Swendsen-Wang with the Wolff embedding: one random hyperplane for the
+    whole lattice, every cluster reflected with probability 1/2."""
+    N, z = nbrs.shape
+    n = spins.shape[1]
+    r = _random_unit_vector(n)
+    proj = np.zeros(N)
+    for i in range(N):
+        for c in range(n):
+            proj[i] += spins[i, c] * r[c]
+    for i in range(N):
+        parent[i] = i
+    for i in range(N):
+        for k in range(0, z, 2):
+            j = nbrs[i, k]
+            x = two_beta_J * proj[i] * proj[j]
+            if x > 0.0 and np.random.random() < 1.0 - np.exp(-x):
+                union(parent, i, j)
+    largest = flatten(parent)
+    flip = np.empty(N, dtype=np.bool_)
+    for i in range(N):
+        if parent[i] == i:
+            flip[i] = np.random.random() < 0.5
+    for i in range(N):
+        if flip[parent[i]]:
+            for c in range(n):
+                spins[i, c] -= 2.0 * proj[i] * r[c]
+    return largest
+
+
+@njit(cache=True)
 def _energy_kernel(spins, nbrs, J, h):
     N, z = nbrs.shape
     n = spins.shape[1]
@@ -177,6 +209,10 @@ class VectorModel(LatticeModel):
             self.spins, self.neighbors, 2.0 * beta * self.J, self._cluster, self._in_cluster,
             self.wolff_clusters,
         )
+
+    def _swendsen_wang_sweep(self, beta):
+        self._check_cluster_valid()
+        return _sw_kernel(self.spins, self.neighbors, 2.0 * beta * self.J, self._cluster)
 
     def adapt_step_size(self, acceptance):
         # Multiplicative update; converges geometrically toward the target rate.

@@ -34,6 +34,7 @@ LABELS = {
     "specific_heat": r"$C_v / N$",
     "susceptibility": r"$\chi / N$",
     "binder": r"$U_4$",
+    "stiffness": r"$\Upsilon$",
 }
 
 

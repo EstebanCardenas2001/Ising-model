@@ -49,9 +49,9 @@ def test_ordered_ground_state(model):
 
 def test_algorithm_registry_and_errors():
     m = IsingModel(4, seed=0)
-    assert m.algorithms() == ["metropolis", "wolff"]
+    assert m.algorithms() == ["metropolis", "swendsen_wang", "wolff"]
     with pytest.raises(ValueError, match="does not support"):
-        m.sweep(1.0, "swendsen_wang")
+        m.sweep(1.0, "heat_bath")
     with pytest.raises(ValueError):
         m.sweep(0.0)
     with pytest.raises(ValueError, match="h = 0"):

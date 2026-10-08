@@ -11,7 +11,7 @@ from .models import (
     XYModel,
 )
 from .observables import OBSERVABLES, binder_cumulant, integrated_autocorr_time, jackknife, thermodynamics
-from .simulation import ScanResult, TimeSeries, run, temperature_scan
+from .simulation import ScanResult, TimeSeries, parallel_tempering, run, temperature_scan
 
 __version__ = "0.1.0"
 
@@ -33,4 +33,5 @@ __all__ = [
     "TimeSeries",
     "run",
     "temperature_scan",
+    "parallel_tempering",
 ]

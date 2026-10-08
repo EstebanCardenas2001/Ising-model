@@ -53,7 +53,7 @@ def exact_enumeration(model, T):
     }
 
 
-@pytest.mark.parametrize("algorithm", ["metropolis", "wolff"])
+@pytest.mark.parametrize("algorithm", ["metropolis", "wolff", "swendsen_wang"])
 @pytest.mark.parametrize(
     "factory, T",
     [
@@ -77,7 +77,7 @@ def _bessel_i(n, x):
     return np.trapezoid(np.exp(x * np.cos(t)) * np.cos(n * t), t) / np.pi
 
 
-@pytest.mark.parametrize("algorithm", ["metropolis", "wolff"])
+@pytest.mark.parametrize("algorithm", ["metropolis", "wolff", "swendsen_wang"])
 @pytest.mark.parametrize("T", [0.7, 2.0])
 def test_1d_ising_chain(T, algorithm):
     L = 64
@@ -89,7 +89,7 @@ def test_1d_ising_chain(T, algorithm):
     assert_agrees(mc["energy"], exact)
 
 
-@pytest.mark.parametrize("algorithm", ["metropolis", "wolff"])
+@pytest.mark.parametrize("algorithm", ["metropolis", "wolff", "swendsen_wang"])
 @pytest.mark.parametrize(
     "cls, exact_e",
     [
@@ -131,3 +131,29 @@ def test_binder_limits():
     rng = np.random.default_rng(0)
     # Disordered Ising-like: m ~ |Gaussian| gives U4 = 0.
     assert binder_cumulant(np.abs(rng.normal(size=400000))) == pytest.approx(0.0, abs=0.01)
+
+
+def test_parallel_tempering_vs_enumeration():
+    from spinmodels import parallel_tempering
+
+    model = IsingModel(3, dim=2, seed=21)
+    temps = [1.5, 2.0, 2.5, 3.0]
+    res = parallel_tempering(model, temps, n_equil=500, n_measure=40000, n_blocks=40, verbose=False)
+    assert np.all(res.extras["swap_acceptance"] > 0.2)
+    for j, T in enumerate(temps):
+        exact = exact_enumeration(IsingModel(3, dim=2), T)
+        for key in ("energy", "magnetization", "binder"):
+            assert_agrees((res.mean[key][j], res.error[key][j]), exact[key])
+
+
+def test_parallel_cpu_scan_matches_exact():
+    from spinmodels import temperature_scan
+
+    model = IsingModel(64, dim=1, seed=3)
+    temps = np.array([0.8, 1.2, 2.0])
+    res = temperature_scan(model, temps, n_equil=500, n_measure=10000, algorithm="swendsen_wang",
+                           n_workers=3, verbose=False)
+    t = np.tanh(1.0 / temps)
+    exact = -(t + t**63) / (1 + t**64)
+    for j in range(len(temps)):
+        assert_agrees((res.mean["energy"][j], res.error["energy"][j]), exact[j])

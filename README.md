@@ -21,9 +21,12 @@ $$
 ## Install
 
 ```bash
-uv venv && uv pip install -e ".[dev]"     # or: python -m venv .venv && pip install -e ".[dev]"
-pytest                                     # ~15 s, validates against exact results
+uv venv && uv pip install -e ".[dev]"        # CPU only
+uv pip install -e ".[dev,gpu]"               # + CUDA engine and videos (CuPy, NVIDIA GPU)
+pytest                                        # ~30 s, validates against exact results (GPU tests skip without CUDA)
 ```
+
+Videos additionally need `ffmpeg` (NVENC hardware encoding is used when available).
 
 ## Quick start
 
@@ -46,6 +49,28 @@ Or from the command line:
 python -m spinmodels ising --dim 3 -L 6 8 12 --tmin 4.2 --tmax 4.8 --nt 13 --algorithm wolff --out output/ising3d
 python -m spinmodels potts -q 3 -L 16 32 --tmin 0.9 --tmax 1.1 --algorithm wolff --out output/potts3
 python -m spinmodels heisenberg -L 8 12 --tmin 1.3 --tmax 1.6 --algorithm wolff --out output/heis
+```
+
+Parallel CPU scan (independent chains, one process per temperature) and CPU parallel tempering:
+
+```python
+from spinmodels import IsingModel, PottsModel, parallel_tempering, temperature_scan
+
+res = temperature_scan(IsingModel(32, seed=0), np.linspace(2.0, 2.6, 16),
+                       algorithm="swendsen_wang", n_workers=-1)      # all cores
+pt = parallel_tempering(PottsModel(24, q=8, seed=0), np.linspace(0.70, 0.80, 12))
+pt.extras["swap_acceptance"]
+```
+
+GPU scan: every temperature × several independent chains are replicas of one batched CUDA simulation,
+updated by Swendsen–Wang + local sweeps and coupled by parallel tempering:
+
+```python
+from spinmodels.gpu.scan import gpu_temperature_scan
+
+res = gpu_temperature_scan("ising", L=256, dim=2, temperatures=np.linspace(2.1, 2.45, 64),
+                           n_equil=1000, n_measure=10000, n_chains=2)
+res.mean["binder"], res.error["binder"], res.extras["swap_acceptance"]
 ```
 
 Low-level use (one Markov chain):
@@ -92,41 +117,88 @@ $\to 1-(n+2)/3n$ when disordered (0 for Ising, 1/3 for XY and the Potts vector o
 ```
 src/spinmodels/
 ├── lattice.py        HypercubicLattice: flat (N, 2·dim) neighbor table → kernels are dimension-agnostic
-├── models/
-│   ├── base.py       LatticeModel ABC: state, sweep() dispatch, adaptation hooks
-│   ├── ising.py      Numba kernels + IsingModel
-│   ├── potts.py      Numba kernels + PottsModel
-│   └── vector.py     shared O(n) kernels; VectorModel → XYModel (n=2), HeisenbergModel (n=3)
+├── models/           CPU models (Numba): base.py (ABC, sweep dispatch), ising.py, potts.py,
+│                     vector.py (XY, Heisenberg), _cluster.py (union-find for Swendsen–Wang)
 ├── observables.py    estimators, jackknife, autocorrelation time
-├── simulation.py     run(), temperature_scan(), ScanResult (save/load .npz)
+├── simulation.py     run(), temperature_scan() (serial / multi-process), parallel_tempering(), ScanResult
 ├── plotting.py       plot_scan(), plot_configuration()
+├── gpu/              CUDA engine: kernels.cu, engine.py (GPUIsing/GPUPotts/GPUXY/GPUHeisenberg),
+│                     scan.py (batched scans + parallel tempering)
+├── video/            catalog.py (systems + physics captions), produce.py (GPU frames),
+│                     render.py (Matplotlib + ffmpeg/NVENC), pipeline.py (orchestration)
 └── __main__.py       CLI
 ```
 
 **Update algorithms are plug-ins.** `model.sweep(T, algorithm="name")` dispatches to the
 method `_name_sweep(beta)`, and `model.algorithms()` discovers these methods automatically. A new
-algorithm (Swendsen–Wang, heat bath, over-relaxation, …) is therefore one new method on a model.
-The driver code doesn't change. Currently implemented:
+algorithm is therefore one new method on a model; the driver code doesn't change.
 
-- **`metropolis`**: $N$ random single-spin attempts per sweep. Vector models propose
-  $\mathbf S' = \mathrm{normalize}(\mathbf S + \delta\,\mathbf g)$, and the step $\delta$ is tuned
-  toward 50% acceptance during equilibration.
-- **`wolff`**: single-cluster updates for all four models (spin flip for Ising, relabelling
-  $s_0\to s'$ for Potts, reflection across a random hyperplane for O(n)). Requires $J>0$, $h=0$.
-  Each sweep grows a *fixed* number of clusters, tuned during equilibration to flip $\approx N$
-  spins. Measuring after "as many clusters as needed to flip N spins" would size-bias the last
-  cluster and skew the averages; the exact-enumeration tests catch this.
+| Algorithm | CPU (Numba) | GPU (CUDA) | Notes |
+|---|---|---|---|
+| Metropolis | `metropolis`: random-site | `metropolis`: checkerboard, O(n) only | vector proposal $\mathrm{normalize}(\mathbf S+\delta\mathbf g)$, $\delta$ tuned to 50% acceptance during equilibration |
+| Heat bath | | `heatbath` (Ising, Potts) | exact conditional sampling; `"local"` picks heat bath or Metropolis per model |
+| Wolff | `wolff` | | single cluster; spin flip / Potts relabel / O(n) reflection |
+| Swendsen–Wang | `swendsen_wang` | `swendsen_wang` | all clusters at once; GPU labelling by parallel union-find (atomicMin hooking) |
+| Parallel tempering | `parallel_tempering()` | `gpu_temperature_scan()` | replica exchange between neighbouring temperatures |
+
+Cluster updates require $J>0$ and $h=0$. Two subtleties the exact tests caught:
+
+- **Wolff "sweeps"** grow a *fixed* number of clusters, tuned during equilibration to flip
+  $\approx N$ spins. Measuring after "as many clusters as needed to flip N spins" size-biases
+  the last cluster and skews the averages.
+- **Checkerboard Metropolis is not ergodic for discrete spins.** Moves with $\Delta E=0$ are
+  accepted deterministically, so in 1D every domain wall moves ballistically and the difference
+  between left- and right-movers is conserved (a 27σ energy bias at T = 1). The GPU therefore uses
+  heat-bath updates for Ising and Potts. The CPU picks sites at random, which is ergodic.
+
+**GPU engine** (`spinmodels.gpu`): `R` replicas of an `L^dim` lattice (one temperature each) live in one
+device array and are updated in a single kernel launch. Neighbours are computed arithmetically, so
+the same kernels serve 1D–4D. Random numbers come from a counter-based Philox4x32-10 generator
+(no stored RNG state; reproducible), and energies, magnetizations and the XY helicity modulus come
+from one fused reduction kernel. On a Tesla T4: 6–14 G site-updates/s for local updates and
+1–2.4 G/s for Swendsen–Wang.
 
 **Adding a model:** subclass `LatticeModel` and implement `_initial_spins`, `energy`,
 `magnetization_vector` and `_metropolis_sweep`. Everything else (driver, observables,
 error analysis, CLI via the `MODELS` registry) works unchanged.
 
+## Videos
+
+```bash
+python -m spinmodels.video --preset full          # GPU scans (~1 h on a T4) + all 19 videos
+python -m spinmodels.video --preset quick         # small/fast pipeline check
+python -m spinmodels.video --preset full --skip-scans --only ising2d mosaic_xy2d
+python -m spinmodels.video --list
+```
+
+Output goes to `output/<preset>/`: `videos/*.mp4` (1920×1080, 30 fps, H.264),
+`figures/scan_*.png` (static finite-size-scaling plots) and `data/scan_*.npz` (cached scans).
+
+| Video | What it shows |
+|---|---|
+| `ising1d`, `ising2d`, `ising3d`, `potts3_2d`, `potts8_2d`, `xy2d`, `xy3d`, `heis2d`, `heis3d` | One system cooled slowly through its transition (large lattice; 3D shown as a slice; 1D as a space-time diagram). Beside it are equilibrium curves for several L (order parameter, χ, C, U₄, energy, or the helicity modulus for XY) with a moving temperature cursor, the live system's value, and the energy histogram at the current T. A caption names the phase. The XY video zooms in on spins and vortices. |
+| `compare_ising_dimensions` | 1D / 2D / 3D Ising at the same T: T_c grows with dimension; 1D never orders |
+| `compare_2d_symmetries` | Ising, 3-Potts, 8-Potts (first order), XY (BKT), Heisenberg (Mermin–Wagner) in 2D |
+| `compare_continuous_symmetry` | XY and Heisenberg in 2D vs 3D |
+| `mosaic_*` | 16 fixed temperatures around T_c under local dynamics: domain coarsening, critical slowing down, coexistence at the first-order transition |
+
+How it works: the GPU runs each scene's simulations (Swendsen–Wang + local updates, so every frame is
+an equilibrium sample; mosaics use local dynamics only) and streams frame chunks to RAM disk. A pool
+of CPU processes renders them with Matplotlib, and segments are encoded with NVENC and concatenated.
+Images are gauge-fixed (shown relative to the current order-parameter direction), so global flips
+and rotations from cluster updates do not recolour the picture.
+
 ## Validation (`tests/`)
 
 - 3×3 Ising (two temperatures) and q = 3 Potts: all five observables vs **exact enumeration**
-  over every state ($2^9$ and $3^9$), for both algorithms.
+  over every state ($2^9$ and $3^9$), for Metropolis, Wolff, Swendsen–Wang and parallel tempering.
 - 1D chains vs **closed-form solutions**: Ising $e = -(t + t^{L-1})/(1+t^L)$, XY
-  $e = -I_1(K)/I_0(K)$, Heisenberg $e = -(\coth K - 1/K)$, for both algorithms.
+  $e = -I_1(K)/I_0(K)$, Heisenberg $e = -(\coth K - 1/K)$, for every CPU algorithm. Multi-process
+  scans are checked the same way.
+- **GPU**: Ising, q-state Potts ($Z=\lambda_1^L+(q-1)\lambda_2^L$), XY and Heisenberg chains plus
+  4×4 Ising enumeration, for local and Swendsen–Wang updates. The parallel-tempering scan reproduces
+  the universal Binder cumulant $U^*\approx0.611$ at $T_c$, and the XY helicity modulus has the
+  spin-wave limit $\Upsilon\approx J-T/4$.
 - Metropolis vs Wolff agreement for 2D XY and 3D Heisenberg, plus the Potts(q=2) ↔ Ising mapping,
   the estimators on synthetic AR(1) data, lattice geometry, spin normalization and seeding.
 
