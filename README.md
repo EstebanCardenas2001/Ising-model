@@ -1,16 +1,96 @@
-# spinmodels
+# Lattice spin models: phase transitions on the GPU
 
-Numba-accelerated Monte Carlo simulations of classical lattice spin models:
+Monte Carlo simulations of the **Ising, Potts, XY and Heisenberg** models in one, two and three dimensions,
+with CPU (Numba) and GPU (CUDA) engines, cluster algorithms, parallel tempering, finite-size-scaling
+analysis, and a pipeline that turns the simulations into **videos of phase transitions**.
 
-| Model | Spins | Default lattice | Known transition |
+<p align="center">
+  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/preview_compare_2d_symmetries.gif" width="90%"></a><br>
+  <em>Five 2D models cooled together. The discrete models order, the XY model goes through a
+  Berezinskii–Kosterlitz–Thouless transition, and the Heisenberg model never orders (Mermin–Wagner).</em>
+</p>
+
+## Videos
+
+All videos are 1080p, 30 fps H.264, made with this code on one NVIDIA T4. **Click a thumbnail to
+play or download the full video** (they are attached to the
+[v0.2.0 release](https://github.com/EstebanCardenas2001/Ising-model/releases/tag/v0.2.0)).
+
+### One model at a time (50 s each)
+
+A large lattice (960×960 in 2D, a 240³ lattice shown as a slice in 3D, or a 960-site chain as a
+space-time diagram in 1D) is cooled slowly through its transition. Every frame is an equilibrium
+configuration. Next to it, equilibrium curves for four system sizes show the order parameter,
+susceptibility, specific heat, Binder cumulant and energy (the XY video shows the spin stiffness
+and a zoom on vortices instead). A cursor marks the current temperature, a white dot tracks the live
+lattice, and the energy histogram is reweighted to the current temperature. A caption names the phase.
+
+<table>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising1d.mp4"><img src="docs/media/ising1d.jpg" width="100%"></a><br><b>1D Ising: no transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/ising2d.jpg" width="100%"></a><br><b>2D Ising: Onsager transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising3d.mp4"><img src="docs/media/ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/potts3_2d.mp4"><img src="docs/media/potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts: continuous</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/potts8_2d.mp4"><img src="docs/media/potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts: first order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/xy2d.mp4"><img src="docs/media/xy2d.jpg" width="100%"></a><br><b>2D XY: BKT transition, vortices</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/xy3d.mp4"><img src="docs/media/xy3d.jpg" width="100%"></a><br><b>3D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/heis2d.mp4"><img src="docs/media/heis2d.jpg" width="100%"></a><br><b>2D Heisenberg: Mermin–Wagner, no order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/heis3d.mp4"><img src="docs/media/heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td></tr>
+</table>
+
+<p align="center">
+  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/preview_ising2d.gif" width="80%"></a><br>
+  <em>2D Ising model crossing T<sub>c</sub>: fractal critical clusters, the susceptibility peak,
+  and the Binder cumulants of all sizes crossing.</em>
+</p>
+
+### Comparisons (50 s each)
+
+The same temperature, applied to different dimensions and symmetries.
+
+<table>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_ising_dimensions.mp4"><img src="docs/media/compare_ising_dimensions.jpg" width="100%"></a><br><b>Ising in 1D, 2D, 3D</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/compare_2d_symmetries.jpg" width="100%"></a><br><b>2D: Ising, Potts 3 & 8, XY, Heisenberg</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_continuous_symmetry.mp4"><img src="docs/media/compare_continuous_symmetry.jpg" width="100%"></a><br><b>XY and Heisenberg, 2D vs 3D</b></td></tr>
+</table>
+
+### Sixteen temperatures at once (30 s each)
+
+Sixteen replicas from 0.8 T<sub>c</sub> to 1.2 T<sub>c</sub>, each starting in equilibrium and then evolving under local
+(single-spin) dynamics. Far from T<sub>c</sub> they relax quickly. Near T<sub>c</sub>, domains of all sizes form and relax
+slowly (critical slowing down). In the 8-state Potts model, ordered and disordered phases coexist instead.
+
+<p align="center">
+  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/preview_mosaic_ising2d.gif" width="80%"></a>
+</p>
+
+<table>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/mosaic_ising2d.jpg" width="100%"></a><br><b>2D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising3d.mp4"><img src="docs/media/mosaic_ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_potts3_2d.mp4"><img src="docs/media/mosaic_potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_potts8_2d.mp4"><img src="docs/media/mosaic_potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts (coexistence)</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_xy2d.mp4"><img src="docs/media/mosaic_xy2d.jpg" width="100%"></a><br><b>2D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_xy3d.mp4"><img src="docs/media/mosaic_xy3d.jpg" width="100%"></a><br><b>3D XY</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_heis3d.mp4"><img src="docs/media/mosaic_heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td><td></td><td></td></tr>
+</table>
+
+## What the simulations show
+
+| System | Transition | Measured here | Reference |
 |---|---|---|---|
-| `IsingModel` | $s_i = \pm 1$ | 2D (any `dim`) | 2D: $T_c = 2/\ln(1+\sqrt2) \approx 2.269$ (Onsager); 3D: $T_c \approx 4.5115$ |
-| `PottsModel` | $s_i \in \{0,\dots,q-1\}$ | 2D | 2D: $T_c = 1/\ln(1+\sqrt q)$ (continuous for $q\le4$, first order for $q>4$) |
-| `XYModel` | unit vectors in $\mathbb R^2$ | 2D | BKT transition, $T_{BKT} \approx 0.893$ |
-| `HeisenbergModel` | unit vectors in $\mathbb R^3$ | 3D | $T_c \approx 1.443$ |
+| 1D Ising | none at T > 0: a domain wall costs only 2J | no order, smooth specific-heat bump | exact |
+| 2D Ising | continuous (Onsager) | Binder crossing L=128/256: **T = 2.268** | 2/ln(1+√2) = 2.2692 |
+| 3D Ising | continuous | Binder crossing L=24/32 in [4.476, 4.525] | 4.5115 |
+| 2D 3-state Potts | continuous | Binder crossing L=64/128 in [0.992, 1.006] | 1/ln(1+√3) = 0.9950 |
+| 2D 8-state Potts | **first order** | double-peaked energy histograms, negative U₄, C peak at 0.7445 (L=128) | 1/ln(1+√8) = 0.7449 |
+| 2D XY | **BKT** (topological) | stiffness meets 2T/π at 0.923 → 0.906 for L = 32 → 256 (log. convergence) | 0.893 |
+| 3D XY | continuous | Binder crossing L=24/32 in [2.188, 2.214] | 2.2018 |
+| 2D Heisenberg | none (Mermin–Wagner) | \|m\| on a finite lattice decreases with L at every T | exact |
+| 3D Heisenberg | continuous | Binder crossing L=24/32 in [1.434, 1.453] | 1.4430 |
 
-All models live on periodic hypercubic lattices of any dimension, with coupling $J$ and field $h$
-($k_B = 1$):
+Temperatures are in units of J/k<sub>B</sub>. Each scan uses 64 temperatures and four lattice sizes, with
+12 000 measurements per temperature pooled over up to 32 independent parallel-tempering chains.
+Finite-size-scaling plots for every system are in [`docs/figures/`](docs/figures).
+
+<p align="center"><img src="docs/figures/scan_ising2d.png" width="85%"></p>
+
+## Models
+
+| Model | Spins | Known transition |
+|---|---|---|
+| `IsingModel` | $s_i = \pm 1$ | 2D: $T_c = 2/\ln(1+\sqrt2) \approx 2.269$ (Onsager); 3D: $T_c \approx 4.5115$ |
+| `PottsModel` | $s_i \in \{0,\dots,q-1\}$ | 2D: $T_c = 1/\ln(1+\sqrt q)$, continuous for $q\le4$, first order for $q>4$ |
+| `XYModel` | unit vectors in $\mathbb R^2$ | 2D: BKT transition, $T_{BKT} \approx 0.893$; 3D: $T_c \approx 2.202$ |
+| `HeisenbergModel` | unit vectors in $\mathbb R^3$ | 2D: none (Mermin–Wagner); 3D: $T_c \approx 1.443$ |
+
+All models live on periodic hypercubic lattices of any dimension, with coupling $J$ and field $h$ ($k_B = 1$):
 
 $$
 H_\text{Ising} = -J\sum_{\langle ij\rangle} s_i s_j - h\sum_i s_i,\qquad
@@ -162,31 +242,27 @@ from one fused reduction kernel. On a Tesla T4: 6–14 G site-updates/s for loca
 `magnetization_vector` and `_metropolis_sweep`. Everything else (driver, observables,
 error analysis, CLI via the `MODELS` registry) works unchanged.
 
-## Videos
+## Making the videos
 
 ```bash
-python -m spinmodels.video --preset full          # GPU scans (~1 h on a T4) + all 19 videos
-python -m spinmodels.video --preset quick         # small/fast pipeline check
+python -m spinmodels.video --preset full          # GPU scans (~1 h on a T4) + all 19 videos (~20 min)
+python -m spinmodels.video --preset quick         # small, fast end-to-end check
 python -m spinmodels.video --preset full --skip-scans --only ising2d mosaic_xy2d
 python -m spinmodels.video --list
 ```
 
-Output goes to `output/<preset>/`: `videos/*.mp4` (1920×1080, 30 fps, H.264),
-`figures/scan_*.png` (static finite-size-scaling plots) and `data/scan_*.npz` (cached scans).
+Output goes to `output/<preset>/`: `videos/*.mp4`, `figures/scan_*.png` and `data/scan_*.npz` (cached scans).
 
-| Video | What it shows |
-|---|---|
-| `ising1d`, `ising2d`, `ising3d`, `potts3_2d`, `potts8_2d`, `xy2d`, `xy3d`, `heis2d`, `heis3d` | One system cooled slowly through its transition (large lattice; 3D shown as a slice; 1D as a space-time diagram). Beside it are equilibrium curves for several L (order parameter, χ, C, U₄, energy, or the helicity modulus for XY) with a moving temperature cursor, the live system's value, and the energy histogram at the current T (single-histogram Ferrenberg–Swendsen reweighting from the nearest scan temperature, so it changes smoothly; at the first-order 8-state Potts transition it shows the two coexisting peaks exchanging weight). A caption names the phase. The XY video zooms in on spins and vortices. |
-| `compare_ising_dimensions` | 1D / 2D / 3D Ising at the same T: T_c grows with dimension; 1D never orders |
-| `compare_2d_symmetries` | Ising, 3-Potts, 8-Potts (first order), XY (BKT), Heisenberg (Mermin–Wagner) in 2D |
-| `compare_continuous_symmetry` | XY and Heisenberg in 2D vs 3D |
-| `mosaic_*` | 16 fixed temperatures around T_c under local dynamics: domain coarsening, critical slowing down, coexistence at the first-order transition |
-
-How it works: the GPU runs each scene's simulations (Swendsen–Wang + local updates, so every frame is
-an equilibrium sample; mosaics use local dynamics only) and streams frame chunks to RAM disk. A pool
-of CPU processes renders them with Matplotlib, and segments are encoded with NVENC and concatenated.
-Images are gauge-fixed (shown relative to the current order-parameter direction), so global flips
-and rotations from cluster updates do not recolour the picture.
+How it works:
+- **Equilibrium scans.** The GPU runs every system with all temperatures × several chains as one
+  batched simulation (Swendsen–Wang + local updates, parallel tempering).
+- **Frames.** For each video, the GPU runs the displayed simulations and streams frame chunks to RAM
+  disk. CPU worker processes draw them with Matplotlib, NVENC encodes the segments, and they are
+  concatenated losslessly.
+- **Gauge fixing.** Lattice images are shown relative to the current order-parameter direction, so
+  global flips and rotations from cluster updates don't recolour the whole picture.
+- **Smooth histograms.** Energy histograms use single-histogram Ferrenberg–Swendsen reweighting from
+  the nearest scan temperature, so they change smoothly with the cursor.
 
 ## Validation (`tests/`)
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "spinmodels"
-version = "0.1.0"
+version = "0.2.0"
 description = "Numba-accelerated Monte Carlo simulations of classical lattice spin models (Ising, XY, Heisenberg, Potts)."
 readme = "README.md"
 requires-python = ">=3.10"

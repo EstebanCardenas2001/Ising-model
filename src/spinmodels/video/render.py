@@ -244,6 +244,9 @@ class SingleScene:
                 ax.set_xticks([])
                 ax.set_yticks([])
                 continue
+            if key in s.log_panels:
+                ax.set_yscale("log")
+                ax.set_title(LABELS[key] + " (log)", fontsize=13, loc="left", color=INK)
             for i, res in enumerate(self.scans):
                 _curve(ax, res, key, SERIES[i], f"L = {res.L}")
             if key == "stiffness":
@@ -395,6 +398,12 @@ class CompareScene:
                     ax.axvline(s.Tc, color=SERIES[i], ls=":", lw=1.5)
             ax.set_xlim(T_lo, T_hi)
             ax.set_xscale("log")
+            if key == "specific_heat":
+                # First-order peaks (8-state Potts) grow like L^d: a log axis keeps
+                # the continuous transitions visible next to them.
+                ax.set_yscale("log")
+                ax.set_ylim(bottom=0.03)
+                ax.set_title(LABELS[key] + "  (log scale; largest scanned L)", fontsize=13, loc="left", color=INK)
             ticks = [t for t in (0.2, 0.3, 0.5, 0.7, 1, 1.5, 2, 3, 4, 5, 6) if T_lo <= t <= T_hi]
             ax.set_xticks(ticks, [f"{t:g}" for t in ticks])
             ax.minorticks_off()
