@@ -81,6 +81,43 @@ Finite-size-scaling plots for every system are in [`docs/figures/`](docs/figures
 
 <p align="center"><img src="docs/figures/scan_ising2d.png" width="85%"></p>
 
+## Why Monte Carlo?
+
+Every thermodynamic quantity is an average over *all* spin configurations, each weighted by its
+Boltzmann factor:
+
+$$\langle A\rangle = \frac{1}{Z}\sum_{\text{configurations}} A\; e^{-E/k_BT}, \qquad Z = \sum_{\text{configurations}} e^{-E/k_BT}.$$
+
+**Evaluating this sum exactly is impossible beyond tiny lattices.** N Ising spins have $2^N$
+configurations:
+
+| Lattice | Spins | Configurations |
+|---|---|---|
+| 4 × 4 | 16 | 65 536 |
+| 16 × 16 | 256 | ≈ 10<sup>77</sup> |
+| 256 × 256 | 65 536 | ≈ 10<sup>19 728</sup> |
+
+For comparison, the observable universe contains about 10<sup>80</sup> atoms. For XY and Heisenberg spins,
+which point in continuous directions, the sum becomes an integral over hundreds of thousands of
+dimensions. The test suite enumerates every state only for 3 × 3 and 4 × 4 lattices.
+
+**Simulating the motion of the spins doesn't work either.** Ising and Potts spins have no equations
+of motion: the Hamiltonian assigns an energy to each configuration but does not say how spins move.
+A temperature means random exchanges of energy with the surroundings (a heat bath), so the physics
+itself is statistical.
+
+**Monte Carlo samples the sum instead of computing it.** Almost all configurations have a negligible
+Boltzmann weight. Markov-chain Monte Carlo makes a random walk through configuration space that
+visits each configuration with exactly its Boltzmann probability. Every step uses the real
+interactions, through the energy change of a proposed update. Averages over the visited
+configurations converge to the exact ones with statistical errors that shrink as
+$1/\sqrt{\text{samples}}$, regardless of how many configurations exist. A few million samples per
+lattice size are enough to reproduce Onsager's exact T<sub>c</sub> to five significant figures.
+
+Exact solutions exist only for special cases: the 1D chains (transfer matrix) and the 2D Ising model
+(Onsager). The tests use them to validate the code. For 3D Ising, XY, Heisenberg and most other
+models no exact solution is known, and Monte Carlo is among the most precise methods available.
+
 ## Critical exponents
 
 `python -m spinmodels.critical <system>` measures the critical exponents by **finite-size scaling**.
