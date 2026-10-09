@@ -5,7 +5,7 @@ with CPU (Numba) and GPU (CUDA) engines, cluster algorithms, parallel tempering,
 analysis, and a pipeline that turns the simulations into **videos of phase transitions**.
 
 <p align="center">
-  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/preview_compare_2d_symmetries.gif" width="90%"></a><br>
+  <a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/preview_compare_2d_symmetries.gif" width="90%"></a><br>
   <em>Five 2D models cooled together. The discrete models order, the XY model goes through a
   Berezinskii–Kosterlitz–Thouless transition, and the Heisenberg model never orders (Mermin–Wagner).</em>
 </p>
@@ -14,7 +14,7 @@ analysis, and a pipeline that turns the simulations into **videos of phase trans
 
 All videos are 1080p, 30 fps H.264, made with this code on one NVIDIA T4. **Click a thumbnail to
 play or download the full video** (they are attached to the
-[v0.2.0 release](https://github.com/EstebanCardenas2001/Ising-model/releases/tag/v0.2.0)).
+[v0.2.0 release](https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/tag/v0.2.0)).
 
 ### One model at a time (50 s each)
 
@@ -26,13 +26,13 @@ and a zoom on vortices instead). A cursor marks the current temperature, a white
 lattice, and the energy histogram is reweighted to the current temperature. A caption names the phase.
 
 <table>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising1d.mp4"><img src="docs/media/ising1d.jpg" width="100%"></a><br><b>1D Ising: no transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/ising2d.jpg" width="100%"></a><br><b>2D Ising: Onsager transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising3d.mp4"><img src="docs/media/ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td></tr>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/potts3_2d.mp4"><img src="docs/media/potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts: continuous</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/potts8_2d.mp4"><img src="docs/media/potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts: first order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/xy2d.mp4"><img src="docs/media/xy2d.jpg" width="100%"></a><br><b>2D XY: BKT transition, vortices</b></td></tr>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/xy3d.mp4"><img src="docs/media/xy3d.jpg" width="100%"></a><br><b>3D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/heis2d.mp4"><img src="docs/media/heis2d.jpg" width="100%"></a><br><b>2D Heisenberg: Mermin–Wagner, no order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/heis3d.mp4"><img src="docs/media/heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/ising1d.mp4"><img src="docs/media/ising1d.jpg" width="100%"></a><br><b>1D Ising: no transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/ising2d.jpg" width="100%"></a><br><b>2D Ising: Onsager transition</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/ising3d.mp4"><img src="docs/media/ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/potts3_2d.mp4"><img src="docs/media/potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts: continuous</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/potts8_2d.mp4"><img src="docs/media/potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts: first order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/xy2d.mp4"><img src="docs/media/xy2d.jpg" width="100%"></a><br><b>2D XY: BKT transition, vortices</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/xy3d.mp4"><img src="docs/media/xy3d.jpg" width="100%"></a><br><b>3D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/heis2d.mp4"><img src="docs/media/heis2d.jpg" width="100%"></a><br><b>2D Heisenberg: Mermin–Wagner, no order</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/heis3d.mp4"><img src="docs/media/heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td></tr>
 </table>
 
 <p align="center">
-  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/preview_ising2d.gif" width="80%"></a><br>
+  <a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/ising2d.mp4"><img src="docs/media/preview_ising2d.gif" width="80%"></a><br>
   <em>2D Ising model crossing T<sub>c</sub>: fractal critical clusters, the susceptibility peak,
   and the Binder cumulants of all sizes crossing.</em>
 </p>
@@ -42,7 +42,7 @@ lattice, and the energy histogram is reweighted to the current temperature. A ca
 The same temperature, applied to different dimensions and symmetries.
 
 <table>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_ising_dimensions.mp4"><img src="docs/media/compare_ising_dimensions.jpg" width="100%"></a><br><b>Ising in 1D, 2D, 3D</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/compare_2d_symmetries.jpg" width="100%"></a><br><b>2D: Ising, Potts 3 & 8, XY, Heisenberg</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/compare_continuous_symmetry.mp4"><img src="docs/media/compare_continuous_symmetry.jpg" width="100%"></a><br><b>XY and Heisenberg, 2D vs 3D</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/compare_ising_dimensions.mp4"><img src="docs/media/compare_ising_dimensions.jpg" width="100%"></a><br><b>Ising in 1D, 2D, 3D</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/compare_2d_symmetries.mp4"><img src="docs/media/compare_2d_symmetries.jpg" width="100%"></a><br><b>2D: Ising, Potts 3 & 8, XY, Heisenberg</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/compare_continuous_symmetry.mp4"><img src="docs/media/compare_continuous_symmetry.jpg" width="100%"></a><br><b>XY and Heisenberg, 2D vs 3D</b></td></tr>
 </table>
 
 ### Sixteen temperatures at once (30 s each)
@@ -52,13 +52,13 @@ Sixteen replicas from 0.8 T<sub>c</sub> to 1.2 T<sub>c</sub>, each starting in e
 slowly (critical slowing down). In the 8-state Potts model, ordered and disordered phases coexist instead.
 
 <p align="center">
-  <a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/preview_mosaic_ising2d.gif" width="80%"></a>
+  <a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/preview_mosaic_ising2d.gif" width="80%"></a>
 </p>
 
 <table>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/mosaic_ising2d.jpg" width="100%"></a><br><b>2D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_ising3d.mp4"><img src="docs/media/mosaic_ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_potts3_2d.mp4"><img src="docs/media/mosaic_potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts</b></td></tr>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_potts8_2d.mp4"><img src="docs/media/mosaic_potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts (coexistence)</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_xy2d.mp4"><img src="docs/media/mosaic_xy2d.jpg" width="100%"></a><br><b>2D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_xy3d.mp4"><img src="docs/media/mosaic_xy3d.jpg" width="100%"></a><br><b>3D XY</b></td></tr>
-<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Ising-model/releases/download/v0.2.0/mosaic_heis3d.mp4"><img src="docs/media/mosaic_heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td><td></td><td></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_ising2d.mp4"><img src="docs/media/mosaic_ising2d.jpg" width="100%"></a><br><b>2D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_ising3d.mp4"><img src="docs/media/mosaic_ising3d.jpg" width="100%"></a><br><b>3D Ising</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_potts3_2d.mp4"><img src="docs/media/mosaic_potts3_2d.jpg" width="100%"></a><br><b>2D 3-state Potts</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_potts8_2d.mp4"><img src="docs/media/mosaic_potts8_2d.jpg" width="100%"></a><br><b>2D 8-state Potts (coexistence)</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_xy2d.mp4"><img src="docs/media/mosaic_xy2d.jpg" width="100%"></a><br><b>2D XY</b></td><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_xy3d.mp4"><img src="docs/media/mosaic_xy3d.jpg" width="100%"></a><br><b>3D XY</b></td></tr>
+<tr><td width="33%" valign="top"><a href="https://github.com/EstebanCardenas2001/Lattice-spin-models-phase-transitions-on-GPU/releases/download/v0.2.0/mosaic_heis3d.mp4"><img src="docs/media/mosaic_heis3d.jpg" width="100%"></a><br><b>3D Heisenberg</b></td><td></td><td></td></tr>
 </table>
 
 ## What the simulations show
