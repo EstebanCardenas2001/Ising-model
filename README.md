@@ -142,6 +142,56 @@ print(res.table())
 res.exponents_corrected["nu"]       # (value, error)
 ```
 
+## System size and the thermodynamic limit
+
+**How many spins.** A lattice of linear size L has N = L<sup>d</sup> spins. The critical-exponent runs
+use 256–65 536 spins per lattice in 2D (L = 16–256) and 512–110 592 in 3D (L = 8–48). Each size is
+simulated as up to 512 independent copies at once, so the GPU updates about 8.4 million spins
+simultaneously for the large sizes. Those five datasets took 2.9 × 10<sup>12</sup> spin updates in total;
+the video lattices go up to 960 × 960 = 921 600 spins (2D) and 240³ ≈ 13.8 million (3D).
+
+| d | L | N = L<sup>d</sup> | independent copies | spins on the GPU at once | samples per L |
+|---|---|---|---|---|---|
+| 2 | 16 / 32 / 64 / 128 / 256 | 256 – 65 536 | 512 (128 for L = 256) | 0.13 M – 8.4 M | 5.1 M (1.3 M) |
+| 3 | 8 / 12 / 16 / 24 / 32 / 48 | 512 – 110 592 | 512 → 75 | 0.26 M – 8.4 M | 5.1 M → 0.75 M |
+
+**Finite systems have no sharp transition.** On a finite lattice every singularity is rounded and
+shifted, and finite-size scaling predicts how the finite values converge as L → ∞
+(`python -m spinmodels.critical <system>` writes this analysis to `<system>_limit.txt/png`):
+
+- **Pseudo-critical temperatures.** The peaks of χ, C and $d\ln|m|/d\beta$ sit at
+  $T_c(L) = T_c + a L^{-1/\nu}$. The susceptibility peak of the 2D Ising model is 5.7% above T<sub>c</sub>
+  for L = 16 and 0.35% for L = 256, halving with every doubling of L because 1/ν = 1.
+- **Binder crossings** converge faster, as $L^{-1/\nu-\omega}$. Extrapolated to L → ∞, they land within
+  about 10<sup>-5</sup> of the exact or best-known T<sub>c</sub> for every system.
+- **Effective exponents.** The local slope between neighbouring sizes approaches the true exponent
+  as $x + b L^{-\omega}$, so it can be extrapolated to L → ∞.
+- **The Binder cumulant at the crossing** tends to a universal number U\* for each universality
+  class: 2D Ising gives 0.6112 against 0.6107. In 3D it is still converging at L = 48
+  (3D Ising: 0.470 → 0.4655).
+
+| System | χ-peak shift, smallest → largest L | T<sub>c</sub> from Binder crossings, L → ∞ | 1/ν: smallest pair → largest pair → L → ∞ | γ/ν: smallest pair → largest pair → L → ∞ |
+|---|---|---|---|---|
+| 2D Ising | +5.7% → +0.35% | 2.26916(7) · *2.26919* | 0.979 → 1.013 → **1.007(15)** · *1* | 1.767 → 1.759 → **1.755(3)** · *1.75* |
+| 3D Ising | −0.44% → −0.04% | 4.51159(19) · *4.51152* | 1.635 → 1.588 → **1.576(11)** · *1.587* | 2.048 → 1.978 → **1.955(9)** · *1.964* |
+| 2D 3-state Potts | +3.2% → +0.11% | 0.99498(3) · *0.99497* | 1.207 → 1.191 → **1.209(11)** · *1.2* | 1.790 → 1.745 → **1.736(8)** · *1.733* |
+| 3D XY | +2.2% → +0.13% | 2.20183(13) · *2.20184* | 1.500 → 1.484 → **1.488(20)** · *1.489* | 2.021 → 1.985 → **1.958(12)** · *1.962* |
+| 3D Heisenberg | +3.9% → +0.29% | 1.44297(28) · *1.44300* | 1.469 → 1.215 → **1.29(13)** · *1.406* | 2.022 → 1.956 → **1.92(3)** · *1.963* |
+
+Italics: exact or best literature values. Effective exponents are extrapolated linearly in
+$L_{\rm eff}^{-\omega}$ with $L_{\rm eff} = \sqrt{LL'}$. The pseudo-critical temperatures approach
+T<sub>c</sub> from above in all cases except the 3D Ising susceptibility peak, which approaches from below.
+The 3D Heisenberg 1/ν slopes are noisy (see above); its T<sub>c</sub> is nevertheless precise.
+
+<p align="center"><img src="docs/critical/limit_overview.png" width="95%"><br>
+<em>Left: the shift of the susceptibility peak falls as a power law with slope −1/ν, steeper for larger 1/ν.
+Right: effective ν from neighbouring sizes converges to the exact value.</em></p>
+
+<p align="center"><img src="docs/critical/ising3d_limit.png" width="95%"><br>
+<em>3D Ising: pseudo-critical points versus L<sup>−1/ν</sup>, their distance to T<sub>c</sub>, the Binder
+cumulant at the crossings drifting toward U*, and effective exponents extrapolated to L → ∞.
+The same figure for every system is in <a href="docs/critical">docs/critical</a>.</em></p>
+
 ## Models
 
 | Model | Spins | Known transition |
@@ -263,6 +313,7 @@ src/spinmodels/
 ├── observables.py    estimators, jackknife, autocorrelation time
 ├── simulation.py     run(), temperature_scan() (serial / multi-process), parallel_tempering(), ScanResult
 ├── critical.py       finite-size scaling: reweighting, peak finding, power-law fits, exponents, plots, CLI
+├── finite_size.py    approach to L → ∞: pseudo-critical points, Binder crossings, effective exponents
 ├── plotting.py       plot_scan(), plot_configuration()
 ├── gpu/              CUDA engine: kernels.cu, engine.py (GPUIsing/GPUPotts/GPUXY/GPUHeisenberg),
 │                     scan.py (batched scans + parallel tempering), critical.py (FSS sampling)

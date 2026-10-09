@@ -1,0 +1,30 @@
+Approach to the thermodynamic limit
+
+    L    N = L^d   T_peak(chi)  T_peak(dlnm)   T_peak(C)  (T_chi-Tc)/Tc
+   16        256       1.02708       1.03916     1.01289      +3.23e-02
+   32      1,024       1.00876       1.01378     1.00295      +1.39e-02
+   64      4,096       1.00081       1.00285     0.99840      +5.86e-03
+  128     16,384       0.99752       0.99843     0.99650      +2.56e-03
+  256     65,536       0.99607       0.99644     0.99563      +1.10e-03
+
+     pair     Binder crossing T*      U at crossing
+  16/32         0.99398 ± 0.00008     0.6177 ± 0.0001
+  32/64         0.99460 ± 0.00004     0.6151 ± 0.0002
+  64/128        0.99493 ± 0.00002     0.6118 ± 0.0002
+ 128/256        0.99497 ± 0.00002     0.6109 ± 0.0002
+
+T_c extrapolated to L -> inf:
+  susceptibility     0.99493 ± 0.00003   (-4.8e-05 from reference)
+  dlnm               0.99486 ± 0.00007   (-1.1e-04 from reference)
+  specific_heat      0.99502 ± 0.00003   (+4.9e-05 from reference)
+  binder crossings   0.99498 ± 0.00003   (+6.5e-06 from reference)
+  reference          0.99497
+
+Effective exponents from neighbouring sizes (local log-log slopes):
+     pair               1/nu          gamma/nu           beta/nu
+  16/32       1.2072±0.0058     1.7897±0.0034     0.1325±0.0008 
+  32/64       1.2164±0.0075     1.7744±0.0040     0.1352±0.0011 
+  64/128      1.2084±0.0091     1.7496±0.0045     0.1318±0.0012 
+ 128/256      1.1912±0.0168     1.7453±0.0079     0.1315±0.0024 
+   L->inf     1.2089±0.0108     1.7361±0.0075     0.1331±0.0025    (linear in L^-0.8)
+reference     1.2000            1.7333            0.1333        

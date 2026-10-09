@@ -747,6 +747,15 @@ def main(argv=None) -> None:
     fig.savefig(args.out / f"{args.system}_fss.png", dpi=130)
     print(f"Saved {args.out / (args.system + '_fss.png')}")
 
+    from .finite_size import BINDER_STAR, analyze_limit, limit_table, plot_limit
+
+    lim = analyze_limit(res, Tc_ref=s.Tc, U_ref=BINDER_STAR.get(args.system))
+    text = limit_table(lim)
+    print("\n" + text)
+    (args.out / f"{args.system}_limit.txt").write_text(text + "\n")
+    plot_limit(lim, f"{s.title}: approach to the thermodynamic limit").savefig(
+        args.out / f"{args.system}_limit.png", dpi=110)
+
 
 if __name__ == "__main__":
     main()
