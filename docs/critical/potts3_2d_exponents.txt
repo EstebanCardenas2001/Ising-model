@@ -1,0 +1,35 @@
+Finite-size scaling, d = 2, L = [16, 32, 64, 128, 256]
+<|m|> evaluated at T = 0.99497 (given)
+
+quantity                                            power law     with L^-0.8 correction    reference
+1/nu                                         1.2099 ± 0.0021             1.2074 ± 0.0080        1.2000
+nu                                           0.8265 ± 0.0014             0.8282 ± 0.0055        0.8333
+gamma/nu                                     1.7710 ± 0.0056             1.7367 ± 0.0046        1.7333
+beta/nu                                      0.1333 ± 0.0003             0.1328 ± 0.0016        0.1333
+gamma                                        1.4638 ± 0.0053             1.4384 ± 0.0103        1.4444
+beta                                         0.1101 ± 0.0003             0.1100 ± 0.0015        0.1111
+eta                                          0.2290 ± 0.0056             0.2633 ± 0.0046        0.2667
+alpha (hyperscaling 2-d nu)                  0.3469 ± 0.0028             0.3435 ± 0.0110        0.3333
+delta                                       16.4662 ± 0.4304            14.1939 ± 0.2669       14.0000
+check: 2 beta/nu + gamma/nu (= d)            2.0375 ± 0.0057             2.0022 ± 0.0057        2.0000
+alpha/nu (from C_max)                        0.4805 ± 0.0082                                    0.4000
+specific heat: power law: alpha/nu = 0.480 ± 0.008 (chi2/dof = 50.82; logarithm: 852.65)
+
+T_c from dlnm peaks (L -> inf): 0.99487 ± 0.00007
+T_c from susceptibility peaks (L -> inf): 0.99494 ± 0.00003
+T_c from specific_heat peaks (L -> inf): 0.99503 ± 0.00003
+Binder crossing L = 16/32: T = 0.99398 ± 0.00008
+Binder crossing L = 32/64: T = 0.99460 ± 0.00004
+Binder crossing L = 64/128: T = 0.99493 ± 0.00002
+Binder crossing L = 128/256: T = 0.99497 ± 0.00002
+
+fit 1/nu      : 1.2099 ± 0.0021 (χ²/dof = 0.67, L = [16, 32, 64, 128, 256])
+fit 1/nu [d ln m^2]: 1.2085 ± 0.0021 (χ²/dof = 0.53, L = [16, 32, 64, 128, 256])
+fit 1/nu [dU/dbeta]: 1.2271 ± 0.0041 (χ²/dof = 0.62, L = [16, 32, 64, 128, 256])
+fit gamma/nu  : 1.7710 ± 0.0056 (χ²/dof = 26.02, L = [16, 32, 64, 128, 256])
+fit alpha/nu  : 0.4805 ± 0.0082 (χ²/dof = 50.82, L = [16, 32, 64, 128, 256])
+fit C_max = a + b ln L: 3.0256 ± 0.2592 (χ²/dof = 852.65, L = [16, 32, 64, 128, 256])
+fit beta/nu   : -0.1333 ± 0.0003 (χ²/dof = 1.39, L = [16, 32, 64, 128, 256])
+fit 1/nu       (omega = 0.8): 1.2074 ± 0.0080 (χ²/dof = 0.96, L = [16, 32, 64, 128, 256])
+fit gamma/nu   (omega = 0.8): 1.7367 ± 0.0046 (χ²/dof = 1.42, L = [16, 32, 64, 128, 256])
+fit beta/nu    (omega = 0.8): -0.1328 ± 0.0016 (χ²/dof = 2.04, L = [16, 32, 64, 128, 256])

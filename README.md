@@ -81,6 +81,67 @@ Finite-size-scaling plots for every system are in [`docs/figures/`](docs/figures
 
 <p align="center"><img src="docs/figures/scan_ising2d.png" width="85%"></p>
 
+## Critical exponents
+
+`python -m spinmodels.critical <system>` measures the critical exponents by **finite-size scaling**.
+
+1. **Sampling.** For each lattice size L, the GPU simulates hundreds of independent chains at one
+   temperature near T<sub>c</sub> in a single batch: up to 512 chains × 10 000 samples, with Swendsen–Wang +
+   local updates.
+2. **Reweighting.** Single-histogram reweighting (Ferrenberg–Swendsen) turns the samples into
+   continuous curves in T, so peaks are located precisely. Errors come from a jackknife over the
+   independent chains.
+3. **Fits.** The finite-size-scaling laws give the exponents:
+   - $\max_T\, d\ln\langle|m|\rangle/d\beta \sim L^{1/\nu}$
+   - $\chi_{\max} \sim L^{\gamma/\nu}$
+   - $\langle|m|\rangle_{T_c} \sim L^{-\beta/\nu}$
+
+   From these follow $\eta = 2-\gamma/\nu$, $\delta$, and $\alpha = 2 - d\nu$ via hyperscaling.
+   The relation $2\beta/\nu + \gamma/\nu = d$ is reported as a consistency check. T<sub>c</sub> comes
+   from Binder-cumulant crossings and from extrapolating the peak positions.
+4. **Corrections to scaling.** Small lattices bias pure power laws, especially in 3D. Each fit is
+   repeated with the leading correction $A L^{x}(1 + B L^{-\omega})$, with $\omega$ fixed to its
+   literature value. The correction must stay smaller than the leading term, so the two terms can't
+   swap roles.
+
+Results with the corrected fits (sizes 16–256 in 2D, 8–48 in 3D; about 2–7 GPU-minutes per system on a T4):
+
+| System | ν | γ | β | η | δ | T<sub>c</sub> (Binder, largest pair) |
+|---|---|---|---|---|---|---|
+| 2D Ising | 0.995(8) · *1* | 1.746(14) · *7/4* | 0.124(1) · *1/8* | 0.245(2) · *1/4* | 15.3(1) · *15* | 2.26909(7) · *2.26919* |
+| 3D Ising | 0.633(3) · *0.6300* | 1.241(6) · *1.2371* | 0.330(3) · *0.3264* | 0.040(5) · *0.0363* | 4.77(3) · *4.790* | 4.51148(14) · *4.5115* |
+| 2D 3-state Potts | 0.828(6) · *5/6* | 1.438(10) · *13/9* | 0.110(2) · *1/9* | 0.263(5) · *4/15* | 14.2(3) · *14* | 0.99497(2) · *0.99497* |
+| 3D XY | 0.671(6) · *0.6717* | 1.316(13) · *1.3178* | 0.350(4) · *0.3486* | 0.039(8) · *0.0381* | 4.77(5) · *4.780* | 2.20156(12) · *2.2018* |
+| 3D Heisenberg † | 0.699(6) · *0.7112* | 1.394(13) · *1.3960* | 0.359(3) · *0.3689* | 0.005(6) · *0.0375* | 4.97(4) · *4.783* | 1.44257(9) · *1.4430* |
+
+Measured value with its uncertainty in the last digits, followed by the exact or best literature
+value in italics. † Pure power-law fits: for Heisenberg the peak heights are about 3× noisier, which
+leaves the three-parameter corrected fit unconstrained. It needs larger lattices or more samples, and
+its estimates are 1–3% low. Without corrections, all 3D systems show the expected drift (for example
+3D Ising ν = 0.619, which rises toward 0.63 as small sizes are dropped). Full tables:
+[`docs/critical/`](docs/critical).
+
+<p align="center"><img src="docs/critical/ising3d_fss.png" width="85%"><br>
+<em>3D Ising. Top: power-law scaling and Binder crossings at T<sub>c</sub>. Bottom: data collapse with the
+measured exponents. The small remaining spread for L = 8–12 is the correction to scaling.</em></p>
+
+```bash
+python -m spinmodels.critical ising3d                      # GPU, default sizes 8..48
+python -m spinmodels.critical ising2d -L 16 32 64 128 --measure 20000
+python -m spinmodels.critical xy3d --reuse --L-min 12      # re-analyse saved samples without small sizes
+python -m spinmodels.critical potts3_2d --cpu -L 8 12 16 24  # CPU engine (multi-process)
+```
+
+```python
+from spinmodels.critical import analyze, KNOWN_EXPONENTS, CORRECTION_OMEGA
+from spinmodels.gpu.critical import collect_gpu
+
+data = [collect_gpu("ising", L, 3, 4.5115) for L in (8, 12, 16, 24, 32)]
+res = analyze(data, Tc=4.5115, omega=CORRECTION_OMEGA["ising3d"], reference=KNOWN_EXPONENTS["ising3d"])
+print(res.table())
+res.exponents_corrected["nu"]       # (value, error)
+```
+
 ## Models
 
 | Model | Spins | Known transition |
@@ -201,9 +262,10 @@ src/spinmodels/
 │                     vector.py (XY, Heisenberg), _cluster.py (union-find for Swendsen–Wang)
 ├── observables.py    estimators, jackknife, autocorrelation time
 ├── simulation.py     run(), temperature_scan() (serial / multi-process), parallel_tempering(), ScanResult
+├── critical.py       finite-size scaling: reweighting, peak finding, power-law fits, exponents, plots, CLI
 ├── plotting.py       plot_scan(), plot_configuration()
 ├── gpu/              CUDA engine: kernels.cu, engine.py (GPUIsing/GPUPotts/GPUXY/GPUHeisenberg),
-│                     scan.py (batched scans + parallel tempering)
+│                     scan.py (batched scans + parallel tempering), critical.py (FSS sampling)
 ├── video/            catalog.py (systems + physics captions), produce.py (GPU frames),
 │                     render.py (Matplotlib + ffmpeg/NVENC), pipeline.py (orchestration)
 └── __main__.py       CLI
