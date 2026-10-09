@@ -176,7 +176,7 @@ Output goes to `output/<preset>/`: `videos/*.mp4` (1920×1080, 30 fps, H.264),
 
 | Video | What it shows |
 |---|---|
-| `ising1d`, `ising2d`, `ising3d`, `potts3_2d`, `potts8_2d`, `xy2d`, `xy3d`, `heis2d`, `heis3d` | One system cooled slowly through its transition (large lattice; 3D shown as a slice; 1D as a space-time diagram). Beside it are equilibrium curves for several L (order parameter, χ, C, U₄, energy, or the helicity modulus for XY) with a moving temperature cursor, the live system's value, and the energy histogram at the current T. A caption names the phase. The XY video zooms in on spins and vortices. |
+| `ising1d`, `ising2d`, `ising3d`, `potts3_2d`, `potts8_2d`, `xy2d`, `xy3d`, `heis2d`, `heis3d` | One system cooled slowly through its transition (large lattice; 3D shown as a slice; 1D as a space-time diagram). Beside it are equilibrium curves for several L (order parameter, χ, C, U₄, energy, or the helicity modulus for XY) with a moving temperature cursor, the live system's value, and the energy histogram at the current T (single-histogram Ferrenberg–Swendsen reweighting from the nearest scan temperature, so it changes smoothly; at the first-order 8-state Potts transition it shows the two coexisting peaks exchanging weight). A caption names the phase. The XY video zooms in on spins and vortices. |
 | `compare_ising_dimensions` | 1D / 2D / 3D Ising at the same T: T_c grows with dimension; 1D never orders |
 | `compare_2d_symmetries` | Ising, 3-Potts, 8-Potts (first order), XY (BKT), Heisenberg (Mermin–Wagner) in 2D |
 | `compare_continuous_symmetry` | XY and Heisenberg in 2D vs 3D |

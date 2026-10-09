@@ -25,6 +25,9 @@ class System:
     scan_L: dict = field(default_factory=dict)
     #: Lattice size shown in the videos.
     display_L: int = 480
+    #: Concentration of scan temperatures around Tc (see ``temperature_grid``);
+    #: first-order transitions need a much finer grid near Tc.
+    scan_sharpness: float = 6.0
     #: Panels on the right-hand side of the single-system video.
     panels: tuple[str, ...] = ("magnetization", "susceptibility", "specific_heat", "binder", "energy", "histogram")
 
@@ -75,7 +78,8 @@ SYSTEMS: dict[str, System] = {
         System("potts3_2d", "potts", 2, "2D 3-state Potts model", params={"q": 3}, T_range=(0.2, 3.0),
                video_range=(1.6, 0.5), scan_L=_2D, display_L=960),
         System("potts8_2d", "potts", 2, "2D 8-state Potts model", params={"q": 8}, T_range=(0.2, 3.0),
-               video_range=(1.1, 0.4), scan_L={"quick": [16, 32], "full": [16, 32, 64, 128]}, display_L=960),
+               video_range=(1.1, 0.4), scan_L={"quick": [16, 32], "full": [16, 32, 64, 128]}, display_L=960,
+               scan_sharpness=60.0),
         System("xy2d", "xy", 2, "2D XY model", T_range=(0.2, 3.0), video_range=(1.6, 0.3),
                scan_L=_2D, display_L=480,
                panels=("magnetization", "stiffness", "specific_heat", "binder", "histogram", "zoom")),

@@ -265,25 +265,34 @@ class SingleScene:
     def _set_histogram(self, T: float) -> None:
         if not self.scans or self.hist_ax is None:
             return
-        j = int(np.argmin(np.abs(self.scans[0].temperatures - T)))
-        if j == self._hist_index:
-            return
-        self._hist_index = j
+        Ts = self.scans[0].temperatures
+        j = int(np.argmin(np.abs(Ts - T)))
         ax = self.hist_ax
-        ax.cla()
-        _style(ax)
-        ax.set_title(f"P(E/N) at T = {self.scans[0].temperatures[j]:.3f}", fontsize=13, loc="left")
-        ax.set_yticks([])
-        ax.set_xlabel("E/N")
-        samples = [r.extras["energy_samples"][:, j] for r in self.scans]
-        lo = min(x.min() for x in samples)
-        hi = max(x.max() for x in samples)
-        pad = 0.05 * (hi - lo + 1e-3)
-        bins = np.linspace(lo - pad, hi + pad, 60)
-        for i, x in enumerate(samples):
-            hist, edges = np.histogram(x, bins=bins, density=True)
-            ax.stairs(hist, edges, color=SERIES[i], lw=2, fill=False)
-        ax.set_xlim(bins[0], bins[-1])
+        samples = [r.extras["energy_samples"][:, j].astype(np.float64) for r in self.scans]
+        if j != self._hist_index:
+            self._hist_index = j
+            ax.cla()
+            _style(ax)
+            ax.set_yticks([])
+            ax.set_xlabel("E/N")
+            lo = min(x.min() for x in samples)
+            hi = max(x.max() for x in samples)
+            pad = 0.05 * (hi - lo + 1e-3)
+            self._bins = np.linspace(lo - pad, hi + pad, 60)
+            self._stairs = [ax.stairs(np.zeros(59), self._bins, color=SERIES[i], lw=2, fill=False)
+                            for i in range(len(samples))]
+            ax.set_xlim(self._bins[0], self._bins[-1])
+        # Single-histogram reweighting (Ferrenberg-Swendsen) from the nearest
+        # scan temperature T_j to the live T: weights exp(-(1/T - 1/T_j) N E/N).
+        top = 0.0
+        for res, x, st in zip(self.scans, samples, self._stairs):
+            logw = -(1.0 / T - 1.0 / Ts[j]) * res.N * x
+            w = np.exp(logw - logw.max())
+            hist, _ = np.histogram(x, bins=self._bins, weights=w, density=True)
+            st.set_data(hist)
+            top = max(top, hist.max())
+        ax.set_ylim(0, 1.1 * top)
+        ax.set_title(f"P(E/N) at T = {T:.3f}", fontsize=13, loc="left", color=INK)
 
     def _set_zoom(self, img: np.ndarray) -> None:
         ax, n = self.zoom_ax, 32

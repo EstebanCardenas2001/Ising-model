@@ -94,7 +94,7 @@ def run_scans(preset: str, data_dir: Path, systems=None, force: bool = False) ->
     data_dir.mkdir(parents=True, exist_ok=True)
     for key in systems or SYSTEMS:
         s = SYSTEMS[key]
-        temps = temperature_grid(*s.T_range, p["nT"], s.Tc)
+        temps = temperature_grid(*s.T_range, p["nT"], s.Tc, s.scan_sharpness)
         for L in s.scan_L[preset]:
             path = data_dir / f"scan_{key}_L{L}.npz"
             if path.exists() and not force:
